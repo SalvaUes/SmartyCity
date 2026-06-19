@@ -5,11 +5,15 @@
   --neon-cyan: #00f3ff;
   --neon-cyan-dim: rgba(0, 243, 255, 0.2);
   --locked-color: #1a2235;
+  --cyber-pink: #e83e8c;
+  --cyber-green: #28a745;
+  --cyber-yellow: #ffc107;
 }
 
+/* Fondo general */
 body.cyber-bg {
   background-color: var(--bg-color);
-  background-image: 
+  background-image:
     radial-gradient(circle at 50% 0%, #0d1b2a 0%, transparent 50%),
     linear-gradient(0deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
@@ -17,13 +21,44 @@ body.cyber-bg {
   min-height: 100vh;
 }
 
+/* Tipografía */
+.cyber-subtitle,
+.cyber-description,
+.cyber-card-body,
+.data-label,
+.stat-grid,
+.progress-bar,
+.histo-label,
+.anomaly-badge {
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.cyber-title,
+.cyber-card-title,
+.neon-text-green {
+  font-family: 'Orbitron', sans-serif;
+}
+
+.cyber-subtitle {
+  letter-spacing: 2px;
+}
+
+.cyber-description {
+  font-size: 1rem;
+}
+
+.cyber-card-body {
+  font-size: 0.9rem;
+}
+
+/* Texto neón */
 .neon-text {
   color: var(--neon-cyan);
   text-shadow: 0 0 5px var(--neon-cyan), 0 0 15px var(--neon-cyan);
   letter-spacing: 2px;
 }
 
-/* Tarjetas Base */
+/* Tarjetas */
 .cyber-card {
   background-color: var(--panel-bg);
   border-radius: 8px;
@@ -32,25 +67,26 @@ body.cyber-bg {
   transition: all 0.3s ease;
 }
 
-/* Tarjeta Activa (Nivel 1 inicialmente) */
 .active-card {
   border: 2px solid var(--neon-cyan);
   box-shadow: 0 0 15px var(--neon-cyan-dim), inset 0 0 20px var(--neon-cyan-dim);
 }
 
-/* Tarjetas Bloqueadas */
 .locked-card {
   border: 2px solid #2a344a;
   background-color: rgba(10, 17, 32, 0.8);
 }
 
-/* Superposición del Candado */
+.completed-card {
+  border-color: #198754 !important;
+  box-shadow: 0 0 15px rgba(25, 135, 84, 0.2),
+              inset 0 0 10px rgba(25, 135, 84, 0.1) !important;
+}
+
+/* Overlay de bloqueo */
 .lock-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(5, 11, 20, 0.8);
   backdrop-filter: blur(2px);
   display: flex;
@@ -62,59 +98,85 @@ body.cyber-bg {
   transition: opacity 0.5s ease;
 }
 
-/* Terminal donde salen los resultados */
+/* Terminal / resultados */
 .terminal-box {
   background-color: rgba(0, 0, 0, 0.5);
   border: 1px solid #1a2235;
   border-radius: 4px;
 }
 
-/* Botones Neon */
+.result-box {
+  font-size: 0.8rem;
+}
+
+.result-box-n1 {
+  min-height: 60px;
+}
+
+/* Botones */
 .cyber-btn {
   box-shadow: 0 0 10px var(--neon-cyan-dim);
   text-transform: uppercase;
   font-weight: bold;
   letter-spacing: 1px;
 }
+
 .cyber-btn:hover {
   box-shadow: 0 0 20px var(--neon-cyan);
 }
 
-/* desbloquear niveles */
+/* Desbloqueo de niveles */
 .unlocked {
   border-color: #0dcaf0 !important;
   box-shadow: 0 0 15px rgba(13, 202, 240, 0.2) !important;
 }
+
 .unlocked .lock-overlay {
   display: none !important;
 }
+
 .unlocked .opacity-25 {
   opacity: 1 !important;
 }
 
-/* Tarjeta Completada (Verde Success) */
-.completed-card {
-  border-color: #198754 !important;
-  box-shadow: 0 0 15px rgba(25, 135, 84, 0.2), inset 0 0 10px rgba(25, 135, 84, 0.1) !important;
-}
-
-/*Nuevas clases para los workers*/
-.data-label{
-  font-family: 'Share Tech Mono', monospace;
+/* Datos dinámicos */
+.data-label {
   font-size: 0.82rem;
   margin-bottom: 0.25rem;
   line-height: 1.5;
 }
 
-.data-success { color:#28a745 !important;}
-.data-error {color: #e83e8c !important;}
+.data-success {
+  color: var(--cyber-green) !important;
+}
 
-/*Grid de las estadisticas*/
+.data-error {
+  color: var(--cyber-pink) !important;
+}
+
+.data-value {
+  color: var(--neon-cyan);
+  font-weight: bold;
+}
+
+/* Nivel 2 */
+#mapa-canvas {
+  background: #030810;
+  border-radius: 4px;
+}
+
+/* Nivel 3 */
+#webcam-video,
+#foto-canvas {
+  background: #030810;
+  border-radius: 4px;
+}
+
+/* Workers */
 .stat-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.4rem;
-  font-family: 'Share Tech Mono', monospace;
   font-size: 0.78rem;
   margin-bottom: 0.5rem;
 }
@@ -133,7 +195,11 @@ body.cyber-bg {
 .stat-item:hover {
   border-color: rgba(0, 243, 255, 0.25);
 }
- 
+
+.stat-item-wide {
+  grid-column: span 2;
+}
+
 .stat-label {
   color: #4a6080;
   font-size: 0.65rem;
@@ -141,19 +207,53 @@ body.cyber-bg {
   letter-spacing: 0.06em;
 }
 
-.stat-value        { color: var(--neon-cyan); font-weight: bold; font-size: 0.88rem; }
-.stat-value.pink   { color: #e83e8c; }
-.stat-value.green  { color: #28a745; }
-.stat-value.yellow { color: #ffc107; }
+.stat-value {
+  color: var(--neon-cyan);
+  font-weight: bold;
+  font-size: 0.88rem;
+}
 
-/* Barra de progreso: transición suave + texto */
+.stat-value.pink {
+  color: var(--cyber-pink);
+}
+
+.stat-value.green {
+  color: var(--cyber-green);
+}
+
+.stat-value.yellow {
+  color: var(--cyber-yellow);
+}
+
+/* Barra de progreso */
+.progress-thin {
+  height: 10px;
+}
+
+.progress-empty {
+  width: 0%;
+}
+
 .progress-bar {
   transition: width 0.3s ease;
-  font-family: 'Share Tech Mono', monospace;
   font-size: 0.62rem;
   letter-spacing: 0.04em;
   overflow: visible;
   white-space: nowrap;
+}
+
+/* Estado de error del worker */
+.progress-error {
+  background-color: var(--cyber-pink) !important;
+}
+
+/* Toast */
+.toast-success {
+  border-color: var(--cyber-green) !important;
+}
+
+.toast-error {
+  border-color: var(--cyber-pink) !important;
 }
 
 /* Pantalla de victoria */
@@ -175,30 +275,30 @@ body.cyber-bg {
 }
 
 .neon-text-green {
-  color: #28a745;
-  text-shadow: 0 0 8px #28a745, 0 0 25px rgba(40, 167, 69, 0.35);
+  color: var(--cyber-green);
+  text-shadow: 0 0 8px var(--cyber-green),
+               0 0 25px rgba(40, 167, 69, 0.35);
   letter-spacing: 3px;
-  font-family: 'Orbitron', sans-serif;
 }
 
 @keyframes victoryPulse {
-  0%, 100% { box-shadow: 0 0 50px rgba(25, 135, 84, 0.3), inset 0 0 50px rgba(25, 135, 84, 0.06); }
-  50%       { box-shadow: 0 0 80px rgba(25, 135, 84, 0.5), inset 0 0 80px rgba(25, 135, 84, 0.12); }
+  0%, 100% {
+    box-shadow: 0 0 50px rgba(25, 135, 84, 0.3),
+                inset 0 0 50px rgba(25, 135, 84, 0.06);
+  }
+
+  50% {
+    box-shadow: 0 0 80px rgba(25, 135, 84, 0.5),
+                inset 0 0 80px rgba(25, 135, 84, 0.12);
+  }
 }
 
-/* Canvas del mapa: fondo oscuro */
-#mapa-canvas {
-  background: #030810;
-  border-radius: 4px;
-}
-
-/* Mini barras de histograma */
+/* Histograma */
 .histo-wrap {
   margin-top: 0.6rem;
 }
- 
+
 .histo-label {
-  font-family: 'Share Tech Mono', monospace;
   font-size: 0.62rem;
   color: #4a6080;
   text-transform: uppercase;
@@ -231,7 +331,6 @@ body.cyber-bg {
   background: #0a1120;
   border: 1px solid var(--neon-cyan);
   color: var(--neon-cyan);
-  font-family: 'Share Tech Mono', monospace;
   font-size: 0.55rem;
   padding: 1px 4px;
   border-radius: 2px;
@@ -240,15 +339,14 @@ body.cyber-bg {
   z-index: 20;
 }
 
-/*Tasa de anomalía*/
+/* Anomalías */
 .anomaly-badge {
   display: inline-block;
-  font-family: 'Share Tech Mono', monospace;
   font-size: 0.7rem;
   padding: 0.15rem 0.5rem;
   border-radius: 3px;
-  border: 1px solid #e83e8c;
-  color: #e83e8c;
+  border: 1px solid var(--cyber-pink);
+  color: var(--cyber-pink);
   background: rgba(232, 62, 140, 0.08);
   margin-left: 0.4rem;
   vertical-align: middle;
