@@ -1,3 +1,4 @@
+
 window.Nivel3 = (function () {
   'use strict';
 
@@ -11,44 +12,50 @@ window.Nivel3 = (function () {
     const btnAccion = document.getElementById('btn-capturar-foto');
     const video = document.getElementById('webcam-video');
     const canvas = document.getElementById('foto-canvas');
-    const result = document.getElementById('resultado-nivel3');
 
-    if (!uiContainer || !btnAccion || !video || !canvas || !result) return;
+    if (!uiContainer || !btnAccion || !video || !canvas) return;
+
+  
+    let result = document.getElementById('resultado-nivel3');
+    if (!result) {
+      result = document.createElement('div');
+      result.id = 'resultado-nivel3';
+      result.className = 'mt-3 terminal-box text-secondary p-2';
+      result.style.fontSize = '0.8rem';
+      uiContainer.appendChild(result);
+    }
 
     _initialized = true;
 
+
     uiContainer.classList.remove('d-none');
-    canvas.classList.add('d-none');
-    video.classList.add('d-none');
+    
+
+    canvas.style.display = 'none';
+
 
     btnAccion.textContent = 'Encender Cámara';
 
     btnAccion.addEventListener('click', () => {
+
       if (!window.AppController || !window.AppController.state.completed.has(2)) {
-        if (window.AppController) {
-          window.AppController.showToast('Completa el Nivel 2 primero.', 'error');
-        }
+        if (window.AppController) window.AppController.showToast('Completa el Nivel 2 primero.', 'error');
         return;
       }
-
       if (window.AppController.state.completed.has(3)) return;
 
+
       if (!_stream) {
-        startCamera(btnAccion, video, result);
+        startCamera(btnAccion, video, result); 
       } else {
-        takePhoto(btnAccion, video, canvas, result);
+        takePhoto(btnAccion, video, canvas, result); 
       }
     });
   }
 
   async function startCamera(btn, video, result) {
     btn.disabled = true;
-
-    result.innerHTML = `
-      <p class="data-label">
-        <span class="data-value">&#x25B6;</span> Solicitando acceso a la cámara...
-      </p>
-    `;
+    result.innerHTML = '<p class="data-label"><span class="data-value">&#x25B6;</span> Solicitando acceso a la cámara...</p>';
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       showError(result, 'La cámara no está soportada en este navegador.');
@@ -58,139 +65,95 @@ window.Nivel3 = (function () {
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: 'user',
-          width: 320,
-          height: 240
-        },
+        video: { facingMode: 'user', width: 320, height: 240 },
         audio: false
       });
 
       _stream = stream;
       video.srcObject = stream;
+      video.style.display = 'block';
 
-      video.classList.remove('d-none');
-      canvas.classList.add('d-none');
-
-      result.innerHTML = `
-        <p class="data-label data-success">
-          <i class="bi bi-camera-video-fill"></i> Cámara activa. Listo para capturar.
-        </p>
-      `;
+      result.innerHTML = '<p class="data-label data-success"><i class="bi bi-camera-video-fill"></i> Cámara activa. Listo para capturar.</p>';
+      
 
       btn.textContent = 'Tomar Foto';
-      btn.classList.remove('btn-outline-secondary');
-      btn.classList.add('btn-outline-info');
+      btn.classList.replace('btn-outline-secondary', 'btn-outline-info');
       btn.disabled = false;
 
     } catch (err) {
       btn.disabled = false;
-
-      const msg = getCameraErrorMessage(err);
-
-      showError(result, msg);
-
-      if (window.AppController) {
-        window.AppController.showToast(msg, 'error');
+      let msg = 'Error al acceder a la cámara: ' + err.message;
+      
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        msg = 'Permiso de cámara denegado. Permite el acceso en tu navegador.';
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        msg = 'No se encontró ninguna cámara conectada.';
+      } else if (err.name === 'NotReadableError') {
+        msg = 'La cámara está siendo usada por otra aplicación.';
       }
+      
+      showError(result, msg);
+      if (window.AppController) window.AppController.showToast(msg, 'error');
     }
   }
 
   function takePhoto(btn, video, canvas, result) {
     if (!_stream) return;
 
-    const width = video.videoWidth || 320;
-    const height = video.videoHeight || 240;
+    // Obtener dimensiones reales del video
+    const w = video.videoWidth || 320;
+    const h = video.videoHeight || 240;
 
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = w;
+    canvas.height = h;
 
+    // Dibujar el fotograma del video en el canvas
     const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, w, h);
 
-    drawPhoto(ctx, video, width, height);
-
-    const base64 = canvas.toDataURL('image/jpeg', 0.85);
-    savePhoto(base64);
-
-    canvas.classList.remove('d-none');
-    video.classList.add('d-none');
-    btn.classList.add('d-none');
-
-    stopCamera();
-
-    result.innerHTML = `
-      <p class="data-label data-success mt-2">
-        <i class="bi bi-check-circle-fill"></i> ¡Evidencia capturada!
-      </p>
-      <p class="data-label">
-        <span class="data-value">RES:</span> ${width} × ${height} px
-      </p>
-      <p class="data-label">
-        <span class="data-value">FMT:</span> JPEG · Base64
-      </p>
-    `;
-
-    if (window.AppController) {
-      window.AppController.onPhotoCaptured();
-    }
-  }
-
-  function drawPhoto(ctx, video, width, height) {
-    ctx.drawImage(video, 0, 0, width, height);
-
+    // Filtro estético Cyberpunk
     ctx.fillStyle = 'rgba(0, 243, 255, 0.06)';
-    ctx.fillRect(0, 0, width, height);
-
+    ctx.fillRect(0, 0, w, h);
     ctx.strokeStyle = '#00f3ff';
     ctx.lineWidth = 2;
-    ctx.strokeRect(4, 4, width - 8, height - 8);
+    ctx.strokeRect(4, 4, w - 8, h - 8);
 
-    const timestamp = new Date().toLocaleString('es-ES');
-
+    // Sello de Marca de tiempo (Timestamp)
+    const ts = new Date().toLocaleString('es-ES');
     ctx.fillStyle = '#00f3ff';
     ctx.font = '10px "Share Tech Mono", monospace';
-    ctx.fillText(`CAPTURA: ${timestamp}`, 10, height - 8);
-  }
+    ctx.fillText(`CAPTURA: ${ts}`, 10, h - 8);
 
-  function savePhoto(base64) {
+    // Convertir a base64 para guardar
+    const base64 = canvas.toDataURL('image/jpeg', 0.85);
+
     try {
       localStorage.setItem('nivel3_snapshot', base64);
-    } catch (error) {
-      if (window.AppController) {
-        window.AppController.showToast('La fotografía fue capturada, pero no pudo guardarse en LocalStorage.', 'error');
-      }
+    } catch (e) {
+      
     }
-  }
 
-  function stopCamera() {
-    if (!_stream) return;
+    // Intercambiar visibilidad: Mostramos la foto estática (canvas) y ocultamos el video en vivo
+    canvas.style.display = 'block';
+    video.style.display = 'none';
+    btn.style.display = 'none'; // El nivel ya terminó, quitamos el botón
 
-    _stream.getTracks().forEach((track) => track.stop());
+    // Apagar el hardware de la cámara para no dejar la luz encendida
+    _stream.getTracks().forEach(t => t.stop());
     _stream = null;
-  }
 
-  function getCameraErrorMessage(error) {
-    if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-      return 'Permiso de cámara denegado. Permite el acceso en tu navegador.';
-    }
+    result.innerHTML = `
+      <p class="data-label data-success mt-2"><i class="bi bi-check-circle-fill"></i> ¡Evidencia capturada!</p>
+      <p class="data-label"><span class="data-value">RES:</span> ${w} × ${h} px</p>
+      <p class="data-label"><span class="data-value">FMT:</span> JPEG · Base64</p>
+    `;
 
-    if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-      return 'No se encontró ninguna cámara conectada.';
-    }
-
-    if (error.name === 'NotReadableError') {
-      return 'La cámara está siendo usada por otra aplicación.';
-    }
-
-    return 'Error al acceder a la cámara: ' + error.message;
+    // Notificamos a AppController para desbloquear el Nivel 4
+    if (window.AppController) window.AppController.onPhotoCaptured();
   }
 
   function showError(el, msg) {
-    el.innerHTML = `
-      <p class="data-label data-error">
-        <i class="bi bi-exclamation-triangle-fill"></i> ${msg}
-      </p>
-    `;
+    el.innerHTML = `<p class="data-label data-error"><i class="bi bi-exclamation-triangle-fill"></i> ${msg}</p>`;
   }
 
   return { init };
