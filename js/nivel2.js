@@ -161,4 +161,4 @@ window.Nivel2 = (function () {
 
   // Devolver el módulo inicializable
   return { init };
-})(); 
+})();
